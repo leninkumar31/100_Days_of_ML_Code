@@ -1,28 +1,30 @@
 # The Iris classification Problem
 import pandas as pd
 import tensorflow as tf
-# input function
+
+# input functions
 def train_input_fun(features,labels,batch_size):
-    #Convert data to Dataset
     dataset = tf.data.Dataset.from_tensor_slices((dict(features),labels))
-    # Shuffles, repeat and batch the data
     return dataset.shuffle(1000).repeat().batch(batch_size)
+
 def eval_input_fun(features,labels,batch_size):
     features = dict(features)
     if labels is None:
         dataset = tf.data.Dataset.from_tensor_slices(features)
     else:
         dataset = tf.data.Dataset.from_tensor_slices((dict(features),labels))
-    # Shuffles, repeat and batch the data
     dataset = dataset.batch(batch_size)
     return dataset
+
 #Get input data
 data = pd.read_csv('/Users/lpothabattula/Desktop/TensorFlow/Day1/iris.csv')
 X,y = data[['sepal_length','sepal_width','petal_length','petal_width']].values,data['species'].values
+# convert labels to integers
 from sklearn import preprocessing
 le = preprocessing.LabelEncoder()
 y = le.fit_transform(y)
 classes = le.classes_
+# split data to train and test sets
 from sklearn.model_selection import train_test_split
 X_train,X_test,train_y,test_y = train_test_split(X,y,test_size=0.3,random_state=42)
 train_x = {
@@ -58,6 +60,8 @@ predict_x = {
         'PetalLength': [1.7, 4.2, 5.4],
         'PetalWidth': [0.5, 1.5, 2.1],
 }
+
+# Predict labels for unseen data
 predictions = clf.predict(input_fn=lambda:eval_input_fun(predict_x,labels=None,batch_size=10))
 
 for pred_dict,expc in zip(predictions,expected):
