@@ -14,7 +14,7 @@ def create_string(temp):
             board += str(temp[i][j])
     return board
 
-def take_action(board,Value,player,eps,isTrain):
+def take_action(board,Value,player,eps):
     possible_actions = []
     for i in range(3):
         for j in range(3):
@@ -24,7 +24,7 @@ def take_action(board,Value,player,eps,isTrain):
     action_values = []
     for action in possible_actions:
         board[action[0]][action[1]] = player
-        if isTrain or player & 1:
+        if player & 1:
             action_values.append(Value[create_string(board)])
         else:
             action_values.append(1.0 - Value[create_string(board)])
@@ -34,6 +34,7 @@ def take_action(board,Value,player,eps,isTrain):
     else:
         best_action = np.argmax(action_values)
     A[best_action] += 1.0 - eps
+    print(A)
     return possible_actions[np.random.choice(range(len(possible_actions)),p=A)]
 
 # initializing value function
@@ -57,10 +58,11 @@ def init(board):
                     init(board)
                     board.unmake_move(i,j)
     UpdateCnt[create_string(board.board)] = 0
+
 init(TicTacToe())
 print(len(Value))
-epsilon = 0.2
-alpha = 0.9
+epsilon = 0.1
+alpha = 0.1
 episodes = 50000
 for _ in range(episodes):
     board = TicTacToe()
@@ -68,14 +70,15 @@ for _ in range(episodes):
     UpdateCnt[curr_state] += 1
     while not board.GameOver:
         player = board.moveCnt%2 + 1
-        action = take_action(board.board,Value,player,epsilon,isTrain=True)
+        action = take_action(board.board,Value,player,epsilon)
         board.make_move(action[0],action[1])
         next_state = create_string(board.board)
         Value[curr_state] += alpha * (Value[next_state]-Value[curr_state])
         UpdateCnt[next_state] += 1
-        # print(curr_state,Value[curr_state])
+        print(curr_state,Value[curr_state])
         # print(next_state,Value[next_state])
         curr_state = next_state
+    print("\n")
 for _ in range(100):
     BoardObj = TicTacToe()
     print("Initial Board setting")
@@ -84,7 +87,7 @@ for _ in range(100):
         print("probability of winning from this state is {}".format(Value[create_string(BoardObj.board)]))
         print("{} many times we updated this state".format(UpdateCnt[create_string(BoardObj.board)]))
         player = BoardObj.moveCnt % 2 + 1
-        if player%2==0:
+        if player%2==1:
             x = int(raw_input('Enter row position\n'))
             y = int(raw_input('Enter column position\n'))
             try:
@@ -93,7 +96,7 @@ for _ in range(100):
                 print("Entered wrong details")
                 continue
         else:
-            x,y = take_action(BoardObj.board,Value,player,eps=epsilon,isTrain=True)
+            x,y = take_action(BoardObj.board,Value,player,eps=epsilon)
             BoardObj.make_move(x, y)
         print("After {} Move".format(BoardObj.moveCnt))
         BoardObj.print_board()
