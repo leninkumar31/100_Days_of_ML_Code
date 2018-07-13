@@ -14,6 +14,7 @@ def create_string(temp):
             board += str(temp[i][j])
     return board
 
+# take action based on state
 def take_action(board,Value,player,eps):
     possible_actions = []
     for i in range(3):
@@ -34,7 +35,7 @@ def take_action(board,Value,player,eps):
     else:
         best_action = np.argmax(action_values)
     A[best_action] += 1.0 - eps
-    print(A)
+    # print(A)
     return possible_actions[np.random.choice(range(len(possible_actions)),p=A)]
 
 # initializing value function
@@ -60,7 +61,8 @@ def init(board):
     UpdateCnt[create_string(board.board)] = 0
 
 init(TicTacToe())
-print(len(Value))
+# print(len(Value))
+# Training phase
 epsilon = 0.1
 alpha = 0.1
 episodes = 50000
@@ -75,17 +77,23 @@ for _ in range(episodes):
         next_state = create_string(board.board)
         Value[curr_state] += alpha * (Value[next_state]-Value[curr_state])
         UpdateCnt[next_state] += 1
-        print(curr_state,Value[curr_state])
+        # print(curr_state,Value[curr_state])
         # print(next_state,Value[next_state])
         curr_state = next_state
-    print("\n")
+# Savinf Value function in pickle file
+import pickle
+pickle_out = open("TicTacToeValFun.pickle","wb")
+pickle.dump(Value,pickle_out)
+pickle_out.close()
+
+# We can play game against user
 for _ in range(100):
     BoardObj = TicTacToe()
     print("Initial Board setting")
     BoardObj.print_board()
     while not BoardObj.GameOver:
-        print("probability of winning from this state is {}".format(Value[create_string(BoardObj.board)]))
-        print("{} many times we updated this state".format(UpdateCnt[create_string(BoardObj.board)]))
+        # print("probability of winning from this state is {}".format(Value[create_string(BoardObj.board)]))
+        # print("{} many times we updated this state".format(UpdateCnt[create_string(BoardObj.board)]))
         player = BoardObj.moveCnt % 2 + 1
         if player%2==1:
             x = int(raw_input('Enter row position\n'))
