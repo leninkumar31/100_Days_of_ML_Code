@@ -40,7 +40,7 @@ def main():
     draws = 0
     mcts_loses = 0
     for game in range(100):
-        VF_pickle = open("/Users/lpothabattula/Desktop/TensorFlow/Day4/TicTacToeValFun.pickle", "rb")
+        VF_pickle = open("/Users/lpothabattula/Desktop/100_Days_of_ML_Code/Day4/TicTacToeValFun.pickle", "rb")
         ValueFunction = pickle.load(VF_pickle)
         BoardObj = TicTacToe()
         currNode = Node(expanded=False, visited=True, TotalSimualtionReward=0, totalNumVisit=1, TicTacToe=BoardObj,parent=None)
